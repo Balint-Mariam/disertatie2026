@@ -29,12 +29,13 @@ Thumbs.db
 
 # Plots and outputs
 plots/
-plots_v2/
 *.png
 *.jpg
 *.jpeg
 *.svg
 *.pdf
+!plots_v2/
+!plots_v2/*.png
 
 # Logs / temp
 *.log
