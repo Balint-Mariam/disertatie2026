@@ -1,11 +1,15 @@
 design_element,chosen_specification,rationale
-portfolio universe,Selected XGBoost signals mapped to real options,Connects statistical forecast layer to tradable option contracts
-holding period,One day (t to t+1),Matches one-step forecast horizon and reduces path-dependence
-rebalancing,Daily,Keeps exposure aligned with fresh cross-sectional signals
-weighting,"Side-neutral: +0.5 long side, -0.5 short side",Separates relative signal value from gross directional bias
-simple IV-space backtest,Signal × IV change synthetic diagnostic,Preliminary test of economic content before contract-level frictions
-realistic strict backtest,Real option prices with exact-contract t+1 requirement,Main economic test with conservative tradability constraints
-mapping rule,Nearest option at entry by maturity/log-moneyness,Operationally links grid-node signals to observable contracts
-fallback rule,Not used in main strict results,Avoids inter-contract mismatch and keeps interpretation clean
-transaction costs,Excluded in baseline,Keeps focus on signal informational value before cost modeling
-PnL definition,(price_t+1 - price_t) × portfolio weight,Direct contract-level payoff proxy under one-day horizon
+portfolio universe,selected XGBoost signals mapped to options,signals generated from best forecasting model
+signal selection,top-k long and top-k short per day,controlled cross-sectional strategy
+holding period,one day,consistent with one-step-ahead forecast horizon
+rebalancing frequency,daily,signals updated every day
+weighting scheme,"side-neutral, +0.5 long side and -0.5 short side, equal-weight within each side",balanced exposure and comparability
+preliminary synthetic backtest,IV-space signal * delta IV,preliminary diagnostic of economic information in the signal
+realistic backtest,option price-based PnL on mapped real contracts,economically meaningful test
+mapping rule at entry,nearest option in moneyness-maturity space,approximate target grid node with tradable contract
+exit rule,exact same contract required at t+1,avoid maturity/moneyness mismatch
+fallback rule,tested separately but not used in main results,unlimited fallback degraded economic performance
+main backtest specification,strict exact-contract realistic backtest,main conservative and defensible setup
+transaction costs,not included in baseline,keep baseline design focused on signal and hedge effects
+performance metrics,"total PnL, mean daily PnL, daily volatility, Sharpe ratio, max drawdown",evaluate return and risk jointly
+hedging comparison,"unhedged, delta-hedged, delta-gamma-hedged",assess effect of sensitivity management
