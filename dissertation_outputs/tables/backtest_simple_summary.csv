@@ -1,0 +1,2 @@
+strategy,total_pnl,mean_daily_pnl,daily_volatility,sharpe_ratio,max_drawdown,num_total_positions_selected,num_positions_traded_nonzero_weight,num_days_total,num_days_traded,num_days_skipped_no_short_side,num_days_skipped_no_long_side,avg_gross_exposure,avg_net_exposure
+xgboost_signal_simple_vol_backtest,4.660600786191612,0.0110440776923971,0.0127791504331846,13.71916694475155,-0.0134936393229336,8440,8440,422,422,0,0,1.0000000000000002,0.0

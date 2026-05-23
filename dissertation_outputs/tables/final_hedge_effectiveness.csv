@@ -1,0 +1,10 @@
+metric,value
+mean_abs_delta_before_hedge,0.1290360809963623
+mean_abs_delta_after_delta_only,0.0001156403499494
+mean_abs_delta_after_delta_gamma,0.0001156403499494
+mean_abs_gamma_before_hedge,6.881737307174766e-05
+mean_abs_gamma_after_delta_gamma,9.951326785132985e-08
+pct_days_delta_only_hedged,0.9976133651551312
+pct_days_delta_gamma_hedged,0.9976133651551312
+num_days_without_valid_delta_gamma_hedge,1.0
+reason_not_hedged_no_next_day,1.0

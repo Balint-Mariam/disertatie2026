@@ -1,0 +1,12 @@
+metric,value
+n_days,2808.0
+coverage_mean,0.7070975783475784
+coverage_std,0.09862489755672073
+coverage_p10,0.562
+coverage_p25,0.634
+coverage_median,0.73
+coverage_p75,0.792
+coverage_p90,0.818
+coverage_ge_50pct_days,2727.0
+coverage_ge_70pct_days,1644.0
+coverage_ge_80pct_days,631.0

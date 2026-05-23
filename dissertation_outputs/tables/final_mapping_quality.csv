@@ -1,0 +1,13 @@
+metric,value,section
+total_selected_signals,8420.0,overall
+positions_mapped_entry_day,8420.0,overall
+positions_traded_with_tplus1_price,4706.0,overall
+positions_unmatched_or_untradable,3714.0,overall
+mapping_success_rate_vs_selected,1.0,overall
+traded_rate_vs_selected,0.5589073634204276,overall
+num_exit_exact_contract,4706.0,overall
+num_exit_nearest_fallback,0.0,overall
+num_still_not_traded,3714.0,overall
+tradability_rate_after_fallback,0.5589073634204276,overall
+avg_mapping_distance_mapped_only,0.4543113122346731,overall
+avg_fallback_exit_distance,,overall

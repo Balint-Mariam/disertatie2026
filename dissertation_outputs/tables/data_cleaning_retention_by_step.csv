@@ -1,0 +1,8 @@
+stage,n_observations,notes,dropped_vs_prev,retention_vs_prev_pct,retention_vs_raw_pct
+raw_options_rows,69596970,Initial raw options sample,,100.0,100.0
+after_cleaning_filters,6713294,After cleaning filters,62883676.0,9.645957288083087,9.645957288083087
+after_iv_pipeline_rows,6713294,Rows in IV output file,0.0,100.0,9.645957288083087
+with_valid_implied_vol,6713293,implied_vol > 0 and finite,1.0,99.99998510418284,9.645955851238925
+grid_long_observations,1404000,Standardized grid long format,5309293.0,20.91373041516287,2.017329202693738
+signals_selected,8440,Selected trading signals,1395560.0,0.6011396011396012,0.012126964722745832
+strict_realistic_positions_traded,4698,Strict exact-contract positions traded (weight != 0),3742.0,55.66350710900474,0.0067502938705521235

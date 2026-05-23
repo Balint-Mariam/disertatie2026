@@ -1,0 +1,9 @@
+metric,value
+n_days,422.0
+avg_nodes_per_day,393.26066350710903
+avg_selected_per_day,20.0
+median_selected_per_day,20.0
+avg_long_per_day,10.0
+avg_short_per_day,10.0
+avg_flat_per_day,373.26066350710903
+avg_abs_strength_selected,2.431009940653254

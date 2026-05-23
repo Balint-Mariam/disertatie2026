@@ -1,0 +1,2 @@
+strategy,total_pnl,mean_daily_pnl,daily_volatility,sharpe_ratio,max_drawdown,num_total_positions_selected,num_positions_successfully_mapped,num_positions_traded,num_days_total,num_days_traded
+xgboost_realistic_option_mapping_no_hedge,59.18207341269834,0.1405749962296872,6.461284084111552,0.3453739000507694,-151.22886408730156,8420,8420,4706,421,419

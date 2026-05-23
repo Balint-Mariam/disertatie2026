@@ -1,0 +1,14 @@
+metric,value
+x_nodes,25.0
+t_nodes,20.0
+total_grid_nodes,500.0
+grid_days_total,2808.0
+grid_values_total,1404000.0
+grid_values_non_null,992765.0
+overall_grid_coverage,0.7070975783475784
+mean_daily_coverage_final,0.7070975783475784
+median_daily_coverage_final,0.73
+min_daily_coverage_final,0.392
+max_daily_coverage_final,0.874
+sample_start_date,2013-10-01
+sample_end_date,2024-12-31

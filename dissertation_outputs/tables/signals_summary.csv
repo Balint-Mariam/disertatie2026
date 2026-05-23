@@ -1,0 +1,9 @@
+metric,value
+total_signal_observations,165956.0
+selected_signals,8440.0
+selected_ratio,0.0508568536238521
+long_signals_total,4220.0
+short_signals_total,4220.0
+flat_signals_total,157516.0
+mean_abs_signal_strength_all,0.7780346666223016
+mean_abs_signal_strength_selected,2.4310099406532535
