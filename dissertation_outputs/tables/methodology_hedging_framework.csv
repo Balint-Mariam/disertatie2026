@@ -1,0 +1,6 @@
+hedge_type,instruments_used,exposure_target,implementation_rule,performance_output
+No hedge,None (baseline realistic option portfolio),Unconstrained delta/gamma,Use strict realistic portfolio returns as baseline,"PnL, Sharpe, max drawdown benchmark"
+Delta-only hedge,Underlying index proxy,Total portfolio delta,Underlying units = -total_delta each day,Delta-hedged daily/cumulative PnL and risk metrics
+Delta-gamma hedge,Hedge option + underlying,"Gamma neutral first, then residual delta neutral",Option units = -total_gamma/option_gamma; underlying adjusts residual delta,"Delta-gamma hedged PnL, Sharpe, drawdown, residual exposures"
+Hedge option selection,ATM-like option with valid t and t+1 price,Stable gamma instrument,Maturity window and liquidity filters from hedge script,Hedge feasibility and effectiveness diagnostics
+Evaluation layer,Portfolio-level analytics,Risk-return and exposure reduction,"Compare unhedged, delta, and delta-gamma variants","PnL, Sharpe, max drawdown, mean abs delta/gamma before-after"

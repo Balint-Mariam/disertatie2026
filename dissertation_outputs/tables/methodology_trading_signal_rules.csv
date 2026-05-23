@@ -1,0 +1,10 @@
+component,definition,economic_interpretation,implementation_details
+forecast_iv,Model-implied next-step volatility estimate at node/date,Expected implied volatility level,Taken from forecast_xgboost_test.csv for selected evaluation dates
+observed_iv,Current market implied volatility at node/date,Reference market valuation,Taken from standardized grid observed IV at signal date
+forecast_minus_observed,forecast_iv - observed_iv,Relative mispricing signal in IV space,Computed cross-sectionally each day before ranking
+cross-sectional z-score,Standardized deviation of forecast_minus_observed within day,Signal intensity relative to daily opportunity set,Daily normalization used to make thresholds comparable in time
+LONG_VOL,Positive high-strength signal,Implied volatility expected to increase / be underpriced,signal = +1 on top positive tail of cross-sectional ranking
+SHORT_VOL,Negative high-strength signal,Implied volatility expected to decrease / be overpriced,signal = -1 on bottom negative tail of cross-sectional ranking
+FLAT,Signal near zero or outside selected tails,No strong directional volatility view,signal = 0 and/or selected = 0
+top_k_per_side,Symmetric selection of strongest long and short signals,Controls concentration and improves comparability,Implemented in signal selection layer with per-day cross-section
+daily rebalancing,Portfolio refreshed each trading day based on new signals,Dynamic adaptation to changing IV surface expectations,One-day holding period with next-day realization

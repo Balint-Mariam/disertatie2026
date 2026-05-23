@@ -1,0 +1,5 @@
+hypothesis,empirical_test,main_evidence,conclusion
+H1 - IV surface has predictable structure,"Out-of-sample RMSE/MAE comparison across Naive, ARIMA, XGBoost",ARIMA and especially XGBoost improve on naive in key forecasting metrics,Supported / partially supported (model-dependent gain)
+H2 - Forecast errors contain economic information,Signal-based backtests (simple IV-space and realistic strict portfolio),Positive economic value appears when signals are transformed into portfolios,Supported
+H3 - Delta-gamma hedging isolates risk exposures,Before/after exposure diagnostics and hedged PnL variants,Mean absolute delta/gamma exposures are materially reduced post-hedging,Supported
+H4 - Economic value must be assessed beyond statistical accuracy,Compare unhedged vs hedged backtest outcomes and risk metrics,Risk-adjusted performance differs across hedging designs despite same forecasts,Supported
