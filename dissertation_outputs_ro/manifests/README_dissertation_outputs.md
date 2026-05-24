@@ -10,6 +10,7 @@ Figuri în limba română generate pentru corpul lucrării:
 - `figures/figure_10_pnl_cumulat_backtest_sintetic_iv.png`
 - `figures/figure_11_distributia_pnl_zilnic_backtest_sintetic_iv.png`
 - `figures/figure_12_pnl_cumulat_portofoliu_realist_neacoperit.png`
+- `figures/figure_13_distributia_pnl_zilnic_portofoliu_realist_neacoperit.png`
 - `figures/figure_14_expuneri_greeks_portofoliu.png`
 - `figures/figure_16_comparatie_pnl_cumulat_hedging.png`
 - `figures/figure_18_eficienta_hedgingului.png`

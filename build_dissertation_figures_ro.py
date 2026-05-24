@@ -323,6 +323,35 @@ def figure_12_realistic_cum_pnl(base_dir: pathlib.Path, out_dir: pathlib.Path) -
     save_figure(fig, out_dir / "figure_12_pnl_cumulat_portofoliu_realist_neacoperit.png", dpi=300, save_pdf=True)
 
 
+def figure_13_realistic_daily_pnl_distribution(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "portfolio_daily_pnl_realistic_strict.csv"
+    _require(src)
+    df = pd.read_csv(src)
+    vals = pd.to_numeric(df["daily_pnl"], errors="coerce").dropna()
+    if vals.empty:
+        raise ValueError("Nu există date pentru figura 13.")
+
+    fig, ax = plt.subplots(figsize=(9.2, 5.2))
+    ax.hist(
+        vals,
+        bins=40,
+        color=STRATEGY_COLORS["Unhedged"],
+        alpha=0.75,
+        density=True,
+        label="Portofoliu realist neacoperit",
+    )
+    ax.set_title("Distribuția PnL-ului Zilnic Al Portofoliului Realist Neacoperit")
+    ax.set_xlabel("PnL zilnic")
+    ax.set_ylabel("Densitate")
+    ax.legend()
+    save_figure(
+        fig,
+        out_dir / "figure_13_distributia_pnl_zilnic_portofoliu_realist_neacoperit.png",
+        dpi=300,
+        save_pdf=True,
+    )
+
+
 def figure_14_greeks_timeseries(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
     src = base_dir / "portfolio_daily_greeks_strict.csv"
     _require(src)
@@ -476,6 +505,7 @@ def update_manifest_ro(out_dir: pathlib.Path) -> pathlib.Path:
         "- `figures/figure_10_pnl_cumulat_backtest_sintetic_iv.png`",
         "- `figures/figure_11_distributia_pnl_zilnic_backtest_sintetic_iv.png`",
         "- `figures/figure_12_pnl_cumulat_portofoliu_realist_neacoperit.png`",
+        "- `figures/figure_13_distributia_pnl_zilnic_portofoliu_realist_neacoperit.png`",
         "- `figures/figure_14_expuneri_greeks_portofoliu.png`",
         "- `figures/figure_16_comparatie_pnl_cumulat_hedging.png`",
         "- `figures/figure_18_eficienta_hedgingului.png`",
@@ -507,6 +537,7 @@ def main() -> None:
     figure_10_simple_cum_pnl(args.base_dir, outdir)
     figure_11_simple_daily_pnl_distribution(args.base_dir, outdir)
     figure_12_realistic_cum_pnl(args.base_dir, outdir)
+    figure_13_realistic_daily_pnl_distribution(args.base_dir, outdir)
     figure_14_greeks_timeseries(args.base_dir, outdir)
     figure_16_hedging_cum_pnl(args.base_dir, outdir)
     figure_18_hedge_effectiveness(args.base_dir, outdir)
