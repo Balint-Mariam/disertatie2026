@@ -8,3 +8,14 @@ SHORT_VOL,Negative high-strength signal,Implied volatility expected to decrease 
 FLAT,Signal near zero or outside selected tails,No strong directional volatility view,signal = 0 and/or selected = 0
 top_k_per_side,Symmetric selection of strongest long and short signals,Controls concentration and improves comparability,Implemented in signal selection layer with per-day cross-section
 daily rebalancing,Portfolio refreshed each trading day based on new signals,Dynamic adaptation to changing IV surface expectations,One-day holding period with next-day realization
+,,,
+Component?,Defini?ie,Interpretare economic?,Detalii de implementare
+IV prognozat?,"Estimarea modelului pentru volatilitatea implicit? la urm?torul pas, pe nod ?i dat?",Nivelul anticipat al volatilit??ii implicite,Preluat? din forecast pentru datele de evaluare selectate
+IV observat?,"Volatilitatea implicit? curent? de pia??, pe nod ?i dat?",Evaluarea curent? a pie?ei,Preluat? din grila standardizat? a IV la data semnalului
+Diferen?a forecast–observat,IV prognozat? minus IV observat?,Semnal relativ de mispricing în spa?iul IV,"Calculat? cross-sectional în fiecare zi, înainte de ordonarea semnalelor"
+Z-score cross-sectional,Devia?ia standardizat? a diferen?ei forecast–observat în cadrul fiec?rei zile,Intensitatea semnalului relativ la oportunit??ile disponibile zilnic,Normalizare zilnic? utilizat? pentru comparabilitatea pragurilor în timp
+LONG_VOL,Semnal pozitiv de intensitate ridicat?,Volatilitatea implicit? este anticipat? s? creasc? / s? fie subevaluat?,signal = +1 pentru partea pozitiv? superioar? a clasamentului cross-sectional
+SHORT_VOL,Semnal negativ de intensitate ridicat?,Volatilitatea implicit? este anticipat? s? scad? / s? fie supraevaluat?,signal = -1 pentru partea negativ? inferioar? a clasamentului cross-sectional
+FLAT,Semnal apropiat de zero sau în afara cozilor selectate,Nu exist? o opinie direc?ional? puternic? asupra volatilit??ii,signal = 0 ?i/sau selected = 0
+Top-k pe fiecare parte,Selec?ie simetric? a celor mai puternice semnale long ?i short,Controleaz? concentrarea ?i îmbun?t??e?te comparabilitatea,Implementat? zilnic pe distribu?ia cross-sectional? a semnalelor
+Rebalansare zilnic?,Portofoliul este actualizat în fiecare zi de tranzac?ionare pe baza noilor semnale,Adaptare dinamic? la schimbarea anticipa?iilor privind suprafa?a IV,"Perioad? de de?inere de o zi, cu realizare în ziua urm?toare"

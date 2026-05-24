@@ -1,14 +1,14 @@
-metric,value
-x_nodes,25.0
-t_nodes,20.0
-total_grid_nodes,500.0
-grid_days_total,2808.0
-grid_values_total,1404000.0
-grid_values_non_null,992765.0
-overall_grid_coverage,0.7070975783475784
-mean_daily_coverage_final,0.7070975783475784
-median_daily_coverage_final,0.73
-min_daily_coverage_final,0.392
-max_daily_coverage_final,0.874
-sample_start_date,2013-10-01
-sample_end_date,2024-12-31
+metric,value,,,Indicator,Valoare
+x_nodes,25,,,Num?r de noduri pe axa moneyness,25
+t_nodes,20,,,Num?r de noduri pe axa maturitate,20
+total_grid_nodes,500,,,Num?r total de noduri ale grilei,500
+grid_days_total,"2,808.00",,,Num?r total de zile în gril?,2.808
+grid_values_total,"1,404,000.00",,,Num?r total de valori în gril?,1.404.000
+grid_values_non_null,"992,765.00",,,Num?r de valori disponibile în gril?,992.765
+overall_grid_coverage,0.71,,,Acoperirea total? a grilei,"0,71"
+mean_daily_coverage_final,0.71,,,Acoperirea zilnic? medie final?,"0,71"
+median_daily_coverage_final,0.73,,,Acoperirea zilnic? median? final?,"0,73"
+min_daily_coverage_final,0.39,,,Acoperirea zilnic? minim? final?,"0,39"
+max_daily_coverage_final,0.87,,,Acoperirea zilnic? maxim? final?,"0,87"
+sample_start_date,01/10/2013,,,Data de început a e?antionului,01.10.2013
+sample_end_date,31/12/2024,,,Data de final a e?antionului,31.12.2024
