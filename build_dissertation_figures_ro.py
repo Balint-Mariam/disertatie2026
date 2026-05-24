@@ -70,6 +70,85 @@ def figure_01_data_cleaning(base_dir: pathlib.Path, out_dir: pathlib.Path) -> No
     save_figure(fig, out_dir / "figure_01_retentia_esantionului.png", dpi=300, save_pdf=True)
 
 
+def figure_02_grid_coverage_heatmap(base_dir: pathlib.Path, out_dir: pathlib.Path, chunksize: int = 300_000) -> None:
+    src = base_dir / "iv_grid_long.csv"
+    _require(src)
+
+    day_set: set[pd.Timestamp] = set()
+    node_set: set[tuple[float, float]] = set()
+    valid_counts: pd.Series | None = None
+
+    usecols = ["quote_date", "log_moneyness", "T", "iv_grid"]
+    for chunk in pd.read_csv(src, usecols=usecols, chunksize=chunksize):
+        qd = parse_dates(chunk["quote_date"]).dt.normalize()
+        lm = pd.to_numeric(chunk["log_moneyness"], errors="coerce")
+        ttm = pd.to_numeric(chunk["T"], errors="coerce")
+        iv = pd.to_numeric(chunk["iv_grid"], errors="coerce")
+
+        qd_valid = qd.dropna().unique()
+        for d in qd_valid:
+            day_set.add(pd.Timestamp(d))
+
+        nodes_chunk = pd.DataFrame({"log_moneyness": lm, "T": ttm}).dropna().drop_duplicates()
+        for row in nodes_chunk.itertuples(index=False):
+            node_set.add((float(row.log_moneyness), float(row.T)))
+
+        valid_mask = lm.notna() & ttm.notna() & np.isfinite(iv)
+        if valid_mask.any():
+            vc = (
+                pd.DataFrame({"log_moneyness": lm[valid_mask], "T": ttm[valid_mask]})
+                .groupby(["log_moneyness", "T"], observed=True)
+                .size()
+            )
+            valid_counts = vc if valid_counts is None else valid_counts.add(vc, fill_value=0)
+
+    n_days = len(day_set)
+    if n_days == 0:
+        raise ValueError("Nu au fost identificate zile valide în iv_grid_long.csv.")
+
+    if not node_set:
+        raise ValueError("Nu au fost identificate noduri valide în iv_grid_long.csv.")
+
+    nodes_df = pd.DataFrame(sorted(node_set), columns=["log_moneyness", "T"])
+    if valid_counts is None:
+        cov_df = nodes_df.copy()
+        cov_df["coverage"] = 0.0
+    else:
+        cov_count_df = valid_counts.rename("valid_days").reset_index()
+        cov_df = nodes_df.merge(cov_count_df, on=["log_moneyness", "T"], how="left")
+        cov_df["valid_days"] = pd.to_numeric(cov_df["valid_days"], errors="coerce").fillna(0.0)
+        cov_df["coverage"] = cov_df["valid_days"] / float(n_days)
+
+    pvt = cov_df.pivot_table(index="log_moneyness", columns="T", values="coverage", aggfunc="mean")
+    pvt = pvt.sort_index(axis=0).sort_index(axis=1)
+    if pvt.empty:
+        raise ValueError("Heatmap-ul de acoperire nu poate fi construit (pivot gol).")
+
+    fig, ax = plt.subplots(figsize=(9.6, 6.0))
+    arr = pvt.to_numpy(dtype=float)
+    im = ax.imshow(arr, cmap="viridis", aspect="auto", origin="lower", vmin=0.0, vmax=1.0)
+
+    x_vals = pvt.columns.to_numpy(dtype=float)
+    y_vals = pvt.index.to_numpy(dtype=float)
+    xt = np.linspace(0, len(x_vals) - 1, min(8, len(x_vals))).round().astype(int)
+    yt = np.linspace(0, len(y_vals) - 1, min(8, len(y_vals))).round().astype(int)
+    xt = np.unique(xt)
+    yt = np.unique(yt)
+    ax.set_xticks(xt)
+    ax.set_xticklabels([f"{x_vals[i]:.2f}" for i in xt])
+    ax.set_yticks(yt)
+    ax.set_yticklabels([f"{y_vals[i]:.2f}" for i in yt])
+
+    ax.set_title("Acoperirea Nodurilor Pe Grila Standardizată A Suprafeței IV")
+    ax.set_xlabel("Maturitate")
+    ax.set_ylabel("Log-moneyness")
+
+    cbar = fig.colorbar(im, ax=ax)
+    cbar.set_label("Grad de acoperire")
+
+    save_figure(fig, out_dir / "figure_02_grid_node_coverage_heatmap.png", dpi=300, save_pdf=True)
+
+
 def _load_grid_day(iv_grid_long_path: pathlib.Path, target_day: pd.Timestamp, chunksize: int = 400_000) -> pd.DataFrame:
     parts: list[pd.DataFrame] = []
     target_day = pd.Timestamp(target_day).normalize()
@@ -355,6 +434,7 @@ def update_manifest_ro(out_dir: pathlib.Path) -> pathlib.Path:
         "Figuri în limba română generate pentru corpul lucrării:",
         "",
         "- `figures/figure_01_retentia_esantionului.png`",
+        "- `figures/figure_02_grid_node_coverage_heatmap.png`",
         "- `figures/figure_03_suprafata_iv_acoperire_ridicata.png`",
         "- `figures/figure_05_comparatie_erori_forecast.png`",
         "- `figures/figure_08_distributia_intensitatii_semnalului.png`",
@@ -383,6 +463,7 @@ def main() -> None:
     outdir.mkdir(parents=True, exist_ok=True)
 
     figure_01_data_cleaning(args.base_dir, outdir)
+    figure_02_grid_coverage_heatmap(args.base_dir, outdir)
     figure_03_iv_surface(args.base_dir, outdir)
     figure_05_forecast_comparison(args.base_dir, outdir)
     figure_08_signal_strength(args.base_dir, outdir)

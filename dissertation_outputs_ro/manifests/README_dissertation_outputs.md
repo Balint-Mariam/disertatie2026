@@ -3,6 +3,7 @@
 Figuri în limba română generate pentru corpul lucrării:
 
 - `figures/figure_01_retentia_esantionului.png`
+- `figures/figure_02_grid_node_coverage_heatmap.png`
 - `figures/figure_03_suprafata_iv_acoperire_ridicata.png`
 - `figures/figure_05_comparatie_erori_forecast.png`
 - `figures/figure_08_distributia_intensitatii_semnalului.png`
