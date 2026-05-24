@@ -352,6 +352,229 @@ def figure_13_realistic_daily_pnl_distribution(base_dir: pathlib.Path, out_dir: 
     )
 
 
+def _plot_forecast_node_ro(
+    base_dir: pathlib.Path,
+    out_dir: pathlib.Path,
+    node: str,
+    title: str,
+    out_name: str,
+) -> None:
+    xgb = pd.read_csv(base_dir / "forecast_xgboost_test.csv", usecols=["quote_date", "node", "actual", "forecast"])
+    arima = pd.read_csv(base_dir / "forecast_arima_test.csv", usecols=["quote_date", "node", "forecast"])
+    naive = pd.read_csv(base_dir / "forecast_naive_test.csv", usecols=["quote_date", "node", "forecast"])
+
+    for df in [xgb, arima, naive]:
+        df["quote_date"] = parse_dates(df["quote_date"])
+    xgb = xgb[xgb["node"] == node].rename(columns={"forecast": "forecast_xgboost"})
+    arima = arima[arima["node"] == node].rename(columns={"forecast": "forecast_arima"})
+    naive = naive[naive["node"] == node].rename(columns={"forecast": "forecast_naive"})
+
+    merged = (
+        xgb[["quote_date", "actual", "forecast_xgboost"]]
+        .merge(arima[["quote_date", "forecast_arima"]], on="quote_date", how="inner")
+        .merge(naive[["quote_date", "forecast_naive"]], on="quote_date", how="inner")
+        .sort_values("quote_date")
+    )
+    if merged.empty:
+        raise ValueError(f"Nu există date pentru nodul {node}.")
+
+    fig, ax = plt.subplots(figsize=(10, 5.4))
+    ax.plot(merged["quote_date"], merged["actual"], label="IV observată", color=PALETTE["gray"], linewidth=2.2)
+    ax.plot(merged["quote_date"], merged["forecast_naive"], label="IV prognozată - Naive", color=MODEL_COLORS["Naive"])
+    ax.plot(merged["quote_date"], merged["forecast_arima"], label="IV prognozată - ARIMA", color=MODEL_COLORS["ARIMA"])
+    ax.plot(merged["quote_date"], merged["forecast_xgboost"], label="IV prognozată - XGBoost", color=MODEL_COLORS["XGBoost"])
+    ax.set_title(title)
+    ax.set_xlabel("Dată")
+    ax.set_ylabel("Volatilitate implicită")
+    ax.legend(ncol=2)
+    save_figure(fig, out_dir / out_name, dpi=300, save_pdf=True)
+
+
+def figure_A1_forecast_node_1(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    _plot_forecast_node_ro(
+        base_dir=base_dir,
+        out_dir=out_dir,
+        node="iv_x17_t17",
+        title="Valori observate și prognozate ale IV – nod reprezentativ 1",
+        out_name="figure_A1_iv_observata_vs_prognozata_nod_reprezentativ_1.png",
+    )
+
+
+def figure_A2_forecast_node_2(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    _plot_forecast_node_ro(
+        base_dir=base_dir,
+        out_dir=out_dir,
+        node="iv_x04_t16",
+        title="Valori observate și prognozate ale IV – nod reprezentativ 2",
+        out_name="figure_A2_iv_observata_vs_prognozata_nod_reprezentativ_2.png",
+    )
+
+
+def figure_B1_signal_counts(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "signals_xgboost_summary.csv"
+    _require(src)
+    ssum = pd.read_csv(src)
+    ssum["quote_date"] = parse_dates(ssum["quote_date"])
+    for c in ["n_long", "n_short", "n_flat"]:
+        ssum[c] = pd.to_numeric(ssum[c], errors="coerce")
+    ssum = ssum.dropna(subset=["quote_date", "n_long", "n_short", "n_flat"]).sort_values("quote_date")
+    if ssum.empty:
+        raise ValueError("Nu există date pentru figura B.1.")
+
+    x = np.arange(len(ssum))
+    fig, ax = plt.subplots(figsize=(11.5, 5.6))
+    ax.bar(x, ssum["n_long"], color=PALETTE["teal"], label="LONG_VOL")
+    ax.bar(x, ssum["n_short"], bottom=ssum["n_long"], color=PALETTE["burgundy"], label="SHORT_VOL")
+    ax.bar(x, ssum["n_flat"], bottom=ssum["n_long"] + ssum["n_short"], color=PALETTE["gray"], label="FLAT")
+    tick_step = max(1, len(x) // 14)
+    ticks = x[::tick_step]
+    ax.set_xticks(ticks)
+    ax.set_xticklabels(ssum["quote_date"].dt.strftime("%Y-%m-%d").iloc[ticks], rotation=45, ha="right")
+    ax.set_title("Numărul zilnic de semnale long, short și flat")
+    ax.set_xlabel("Dată")
+    ax.set_ylabel("Număr de semnale")
+    ax.legend(ncol=3)
+    save_figure(fig, out_dir / "figure_B1_numar_zilnic_semnale_long_short_flat.png", dpi=300, save_pdf=True)
+
+
+def figure_C1_simple_daily_pnl_distribution(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "portfolio_daily_pnl_simple.csv"
+    _require(src)
+    df = pd.read_csv(src)
+    vals = pd.to_numeric(df["daily_pnl"], errors="coerce").dropna()
+    if vals.empty:
+        raise ValueError("Nu există date pentru figura C.1.")
+
+    fig, ax = plt.subplots(figsize=(9.2, 5.2))
+    ax.hist(vals, bins=40, color=STRATEGY_COLORS["Simple"], alpha=0.75, density=True, label="Backtest sintetic IV")
+    ax.set_title("Distribuția PnL-ului zilnic în backtestul sintetic")
+    ax.set_xlabel("PnL zilnic")
+    ax.set_ylabel("Densitate")
+    ax.legend()
+    save_figure(fig, out_dir / "figure_C1_distributia_pnl_zilnic_backtest_sintetic_iv.png", dpi=300, save_pdf=True)
+
+
+def figure_D1_realistic_daily_pnl_distribution(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "portfolio_daily_pnl_realistic_strict.csv"
+    _require(src)
+    df = pd.read_csv(src)
+    vals = pd.to_numeric(df["daily_pnl"], errors="coerce").dropna()
+    if vals.empty:
+        raise ValueError("Nu există date pentru figura D.1.")
+
+    fig, ax = plt.subplots(figsize=(9.2, 5.2))
+    ax.hist(vals, bins=40, color=STRATEGY_COLORS["Unhedged"], alpha=0.75, density=True, label="Portofoliu realist neacoperit")
+    ax.set_title("Distribuția PnL-ului zilnic al portofoliului realist neacoperit")
+    ax.set_xlabel("PnL zilnic")
+    ax.set_ylabel("Densitate")
+    ax.legend()
+    save_figure(
+        fig,
+        out_dir / "figure_D1_distributia_pnl_zilnic_portofoliu_realist_neacoperit.png",
+        dpi=300,
+        save_pdf=True,
+    )
+
+
+def figure_E1_greeks_distribution(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "portfolio_daily_greeks_strict.csv"
+    _require(src)
+    df = pd.read_csv(src)
+
+    labels = []
+    data = []
+    for col, lbl in [
+        ("total_delta", "Delta"),
+        ("total_gamma", "Gamma"),
+        ("total_vega", "Vega"),
+        ("total_theta", "Theta"),
+    ]:
+        if col in df.columns:
+            vals = pd.to_numeric(df[col], errors="coerce").dropna()
+            if not vals.empty:
+                labels.append(lbl)
+                data.append(vals)
+    if not data:
+        raise ValueError("Nu există serii Greeks pentru figura E.1.")
+
+    fig, ax = plt.subplots(figsize=(8.8, 5.2))
+    ax.boxplot(
+        data,
+        tick_labels=labels,
+        patch_artist=True,
+        boxprops={"facecolor": PALETTE["light_gray"]},
+    )
+    ax.set_title("Distribuția expunerilor Greeks ale portofoliului")
+    ax.set_xlabel("Indicator Greeks")
+    ax.set_ylabel("Expunere agregată")
+    save_figure(fig, out_dir / "figure_E1_distributia_expunerilor_greeks_portofoliu.png", dpi=300, save_pdf=True)
+
+
+def figure_F1_hedging_daily_pnl_distribution(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "hedged_daily_pnl.csv"
+    _require(src)
+    d = pd.read_csv(src)
+    s1 = pd.to_numeric(d["portfolio_daily_pnl_unhedged"], errors="coerce").dropna()
+    s2 = pd.to_numeric(d["daily_pnl_delta_hedged"], errors="coerce").dropna()
+    s3 = pd.to_numeric(d["daily_pnl_delta_gamma_hedged"], errors="coerce").dropna()
+    if s1.empty or s2.empty or s3.empty:
+        raise ValueError("Nu există date complete pentru figura F.1.")
+
+    all_vals = np.concatenate([s1.to_numpy(), s2.to_numpy(), s3.to_numpy()])
+    bins = np.linspace(np.nanpercentile(all_vals, 1), np.nanpercentile(all_vals, 99), 45)
+
+    fig, ax = plt.subplots(figsize=(10.0, 5.4))
+    ax.hist(s1, bins=bins, alpha=0.45, density=True, label="Fără hedging", color=STRATEGY_COLORS["Unhedged"])
+    ax.hist(s2, bins=bins, alpha=0.45, density=True, label="Delta-hedged", color=STRATEGY_COLORS["Delta Hedged"])
+    ax.hist(
+        s3,
+        bins=bins,
+        alpha=0.45,
+        density=True,
+        label="Delta-gamma hedged",
+        color=STRATEGY_COLORS["Delta-Gamma Hedged"],
+    )
+    ax.set_title("Distribuția PnL-ului zilnic înainte și după hedging")
+    ax.set_xlabel("PnL zilnic")
+    ax.set_ylabel("Densitate")
+    ax.legend()
+    save_figure(fig, out_dir / "figure_F1_distributia_pnl_zilnic_inainte_dupa_hedging.png", dpi=300, save_pdf=True)
+
+
+def figure_F2_delta_gamma_before_after(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "hedge_trades_daily.csv"
+    _require(src)
+    tr = pd.read_csv(src)
+    tr["quote_date"] = parse_dates(tr["quote_date"])
+    tr = tr.sort_values("quote_date")
+
+    need_cols = ["total_delta_before", "residual_delta_after_hedge", "total_gamma_before", "residual_gamma_after_hedge"]
+    for c in need_cols:
+        tr[c] = pd.to_numeric(tr[c], errors="coerce")
+    tr = tr.dropna(subset=["quote_date"])
+    if tr.empty:
+        raise ValueError("Nu există date pentru figura F.2.")
+
+    fig, axes = plt.subplots(2, 1, figsize=(10.8, 7.0), sharex=True)
+
+    axes[0].plot(tr["quote_date"], tr["total_delta_before"], label="Delta înainte de hedging", color=PALETTE["navy"])
+    axes[0].plot(tr["quote_date"], tr["residual_delta_after_hedge"], label="Delta după hedging", color=PALETTE["teal"])
+    axes[0].axhline(0.0, color=PALETTE["light_gray"], linestyle="--", linewidth=1.0)
+    axes[0].set_ylabel("Expunere")
+    axes[0].legend(loc="upper center")
+
+    axes[1].plot(tr["quote_date"], tr["total_gamma_before"], label="Gamma înainte de hedging", color=PALETTE["navy"])
+    axes[1].plot(tr["quote_date"], tr["residual_gamma_after_hedge"], label="Gamma după hedging", color=PALETTE["teal"])
+    axes[1].axhline(0.0, color=PALETTE["light_gray"], linestyle="--", linewidth=1.0)
+    axes[1].set_ylabel("Expunere")
+    axes[1].set_xlabel("Dată")
+    axes[1].legend(loc="upper right")
+
+    fig.suptitle("Evoluția expunerilor Delta și Gamma înainte și după hedging")
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    save_figure(fig, out_dir / "figure_F2_evolutia_delta_gamma_inainte_dupa_hedging.png", dpi=300, save_pdf=True)
+
+
 def figure_14_greeks_timeseries(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
     src = base_dir / "portfolio_daily_greeks_strict.csv"
     _require(src)
@@ -510,6 +733,16 @@ def update_manifest_ro(out_dir: pathlib.Path) -> pathlib.Path:
         "- `figures/figure_16_comparatie_pnl_cumulat_hedging.png`",
         "- `figures/figure_18_eficienta_hedgingului.png`",
         "- `figures/figure_20_flux_metodologic.png`",
+        "",
+        "Figuri pentru anexe:",
+        "- `figures/figure_A1_iv_observata_vs_prognozata_nod_reprezentativ_1.png`",
+        "- `figures/figure_A2_iv_observata_vs_prognozata_nod_reprezentativ_2.png`",
+        "- `figures/figure_B1_numar_zilnic_semnale_long_short_flat.png`",
+        "- `figures/figure_C1_distributia_pnl_zilnic_backtest_sintetic_iv.png`",
+        "- `figures/figure_D1_distributia_pnl_zilnic_portofoliu_realist_neacoperit.png`",
+        "- `figures/figure_E1_distributia_expunerilor_greeks_portofoliu.png`",
+        "- `figures/figure_F1_distributia_pnl_zilnic_inainte_dupa_hedging.png`",
+        "- `figures/figure_F2_evolutia_delta_gamma_inainte_dupa_hedging.png`",
         "",
         "Pentru fiecare figură s-a salvat și versiunea PDF cu același nume de bază.",
         "",

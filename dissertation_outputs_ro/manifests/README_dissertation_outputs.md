@@ -16,6 +16,16 @@ Figuri în limba română generate pentru corpul lucrării:
 - `figures/figure_18_eficienta_hedgingului.png`
 - `figures/figure_20_flux_metodologic.png`
 
+Figuri pentru anexe:
+- `figures/figure_A1_iv_observata_vs_prognozata_nod_reprezentativ_1.png`
+- `figures/figure_A2_iv_observata_vs_prognozata_nod_reprezentativ_2.png`
+- `figures/figure_B1_numar_zilnic_semnale_long_short_flat.png`
+- `figures/figure_C1_distributia_pnl_zilnic_backtest_sintetic_iv.png`
+- `figures/figure_D1_distributia_pnl_zilnic_portofoliu_realist_neacoperit.png`
+- `figures/figure_E1_distributia_expunerilor_greeks_portofoliu.png`
+- `figures/figure_F1_distributia_pnl_zilnic_inainte_dupa_hedging.png`
+- `figures/figure_F2_evolutia_delta_gamma_inainte_dupa_hedging.png`
+
 Pentru fiecare figură s-a salvat și versiunea PDF cu același nume de bază.
 
 Notă: Nu s-au recalculat rezultate; s-au folosit outputurile existente.
