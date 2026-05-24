@@ -269,6 +269,41 @@ def figure_08_signal_strength(base_dir: pathlib.Path, out_dir: pathlib.Path) -> 
     save_figure(fig, out_dir / "figure_08_distributia_intensitatii_semnalului.png", dpi=300, save_pdf=True)
 
 
+def figure_10_simple_cum_pnl(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "portfolio_daily_pnl_simple.csv"
+    _require(src)
+    df = pd.read_csv(src)
+    df["quote_date"] = parse_dates(df["quote_date"])
+    df["cumulative_pnl"] = pd.to_numeric(df["cumulative_pnl"], errors="coerce")
+    df = df.dropna(subset=["quote_date", "cumulative_pnl"]).sort_values("quote_date")
+    if df.empty:
+        raise ValueError("Nu există date pentru figura 10.")
+
+    fig, ax = plt.subplots(figsize=(10, 5.2))
+    ax.plot(df["quote_date"], df["cumulative_pnl"], color=STRATEGY_COLORS["Simple"], label="Backtest sintetic IV")
+    ax.set_title("PnL Cumulat Al Backtestului Sintetic În Spațiul IV")
+    ax.set_xlabel("Dată")
+    ax.set_ylabel("PnL cumulat")
+    ax.legend()
+    save_figure(fig, out_dir / "figure_10_pnl_cumulat_backtest_sintetic_iv.png", dpi=300, save_pdf=True)
+
+
+def figure_11_simple_daily_pnl_distribution(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
+    src = base_dir / "portfolio_daily_pnl_simple.csv"
+    _require(src)
+    df = pd.read_csv(src)
+    vals = pd.to_numeric(df["daily_pnl"], errors="coerce").dropna()
+    if vals.empty:
+        raise ValueError("Nu există date pentru figura 11.")
+
+    fig, ax = plt.subplots(figsize=(9.2, 5.2))
+    ax.hist(vals, bins=40, color=STRATEGY_COLORS["Simple"], alpha=0.75, density=True)
+    ax.set_title("Distribuția PnL-ului Zilnic În Backtestul Sintetic")
+    ax.set_xlabel("PnL zilnic")
+    ax.set_ylabel("Densitate")
+    save_figure(fig, out_dir / "figure_11_distributia_pnl_zilnic_backtest_sintetic_iv.png", dpi=300, save_pdf=True)
+
+
 def figure_12_realistic_cum_pnl(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
     src = base_dir / "portfolio_daily_pnl_realistic_strict.csv"
     _require(src)
@@ -438,6 +473,8 @@ def update_manifest_ro(out_dir: pathlib.Path) -> pathlib.Path:
         "- `figures/figure_03_suprafata_iv_acoperire_ridicata.png`",
         "- `figures/figure_05_comparatie_erori_forecast.png`",
         "- `figures/figure_08_distributia_intensitatii_semnalului.png`",
+        "- `figures/figure_10_pnl_cumulat_backtest_sintetic_iv.png`",
+        "- `figures/figure_11_distributia_pnl_zilnic_backtest_sintetic_iv.png`",
         "- `figures/figure_12_pnl_cumulat_portofoliu_realist_neacoperit.png`",
         "- `figures/figure_14_expuneri_greeks_portofoliu.png`",
         "- `figures/figure_16_comparatie_pnl_cumulat_hedging.png`",
@@ -467,6 +504,8 @@ def main() -> None:
     figure_03_iv_surface(args.base_dir, outdir)
     figure_05_forecast_comparison(args.base_dir, outdir)
     figure_08_signal_strength(args.base_dir, outdir)
+    figure_10_simple_cum_pnl(args.base_dir, outdir)
+    figure_11_simple_daily_pnl_distribution(args.base_dir, outdir)
     figure_12_realistic_cum_pnl(args.base_dir, outdir)
     figure_14_greeks_timeseries(args.base_dir, outdir)
     figure_16_hedging_cum_pnl(args.base_dir, outdir)

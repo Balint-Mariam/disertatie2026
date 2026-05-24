@@ -7,6 +7,8 @@ Figuri în limba română generate pentru corpul lucrării:
 - `figures/figure_03_suprafata_iv_acoperire_ridicata.png`
 - `figures/figure_05_comparatie_erori_forecast.png`
 - `figures/figure_08_distributia_intensitatii_semnalului.png`
+- `figures/figure_10_pnl_cumulat_backtest_sintetic_iv.png`
+- `figures/figure_11_distributia_pnl_zilnic_backtest_sintetic_iv.png`
 - `figures/figure_12_pnl_cumulat_portofoliu_realist_neacoperit.png`
 - `figures/figure_14_expuneri_greeks_portofoliu.png`
 - `figures/figure_16_comparatie_pnl_cumulat_hedging.png`
