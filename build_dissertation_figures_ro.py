@@ -265,8 +265,16 @@ def figure_16_hedging_cum_pnl(base_dir: pathlib.Path, out_dir: pathlib.Path) -> 
 
 
 def figure_18_hedge_effectiveness(base_dir: pathlib.Path, out_dir: pathlib.Path) -> None:
-    src = base_dir / "hedge_effectiveness_summary.csv"
-    _require(src)
+    src_candidates = [
+        base_dir / "hedge_effectiveness_summary.csv",
+        base_dir / "dissertation_outputs/tables/final_hedge_effectiveness.csv",
+    ]
+    src = next((p for p in src_candidates if p.exists()), None)
+    if src is None:
+        raise FileNotFoundError(
+            "Lipsește fișierul de input pentru eficiența hedgingului: "
+            "hedge_effectiveness_summary.csv sau dissertation_outputs/tables/final_hedge_effectiveness.csv"
+        )
     eff = pd.read_csv(src)
     if not {"metric", "value"}.issubset(eff.columns):
         raise ValueError("Format invalid pentru hedge_effectiveness_summary.csv.")
@@ -277,23 +285,62 @@ def figure_18_hedge_effectiveness(base_dir: pathlib.Path, out_dir: pathlib.Path)
     gamma_before = float(m.get("mean_abs_gamma_before_hedge", np.nan))
     gamma_after = float(m.get("mean_abs_gamma_after_delta_gamma", np.nan))
 
-    bars = pd.DataFrame(
-        [
-            {"grup": "Delta", "Înainte de hedging": delta_before, "După hedging": delta_after},
-            {"grup": "Gamma", "Înainte de hedging": gamma_before, "După hedging": gamma_after},
-        ]
-    )
+    fig, axes = plt.subplots(1, 2, figsize=(11.8, 5.2))
+    x = np.arange(2)
+    labels = ["Înainte de hedging", "După hedging"]
+    colors = [PALETTE["navy"], PALETTE["teal"]]
 
-    fig, ax = plt.subplots(figsize=(8.8, 5.2))
-    x = np.arange(len(bars))
-    w = 0.33
-    ax.bar(x - w / 2, bars["Înainte de hedging"], width=w, label="Înainte de hedging", color=PALETTE["navy"])
-    ax.bar(x + w / 2, bars["După hedging"], width=w, label="După hedging", color=PALETTE["teal"])
-    ax.set_xticks(x)
-    ax.set_xticklabels(bars["grup"])
-    ax.set_title("Eficiența Hedgingului: Expuneri Înainte Și După Acoperire")
-    ax.set_ylabel("Expunere absolută medie")
-    ax.legend()
+    # Panoul A: Delta (scară proprie)
+    delta_vals = np.array([delta_before, delta_after], dtype=float)
+    ax_d = axes[0]
+    bars_d = ax_d.bar(x, delta_vals, color=colors, width=0.58)
+    ax_d.set_xticks(x)
+    ax_d.set_xticklabels(labels, rotation=10)
+    ax_d.set_title("Panoul A: Delta")
+    ax_d.set_ylabel("Expunere absolută medie")
+    if np.isfinite(delta_vals).any():
+        ypad = max(np.nanmax(delta_vals) * 0.06, 1e-8)
+        ax_d.set_ylim(0, np.nanmax(delta_vals) + ypad * 2.0)
+    for rect, val in zip(bars_d, delta_vals):
+        if np.isfinite(val):
+            ax_d.text(
+                rect.get_x() + rect.get_width() / 2,
+                rect.get_height() + max(rect.get_height() * 0.02, 1e-8),
+                f"{val:.6f}",
+                ha="center",
+                va="bottom",
+                fontsize=9,
+            )
+
+    # Panoul B: Gamma (scară proprie)
+    gamma_vals = np.array([gamma_before, gamma_after], dtype=float)
+    ax_g = axes[1]
+    bars_g = ax_g.bar(x, gamma_vals, color=colors, width=0.58)
+    ax_g.set_xticks(x)
+    ax_g.set_xticklabels(labels, rotation=10)
+    ax_g.set_title("Panoul B: Gamma")
+    ax_g.set_ylabel("Expunere absolută medie")
+    if np.isfinite(gamma_vals).any():
+        ypad = max(np.nanmax(gamma_vals) * 0.08, 1e-12)
+        ax_g.set_ylim(0, np.nanmax(gamma_vals) + ypad * 2.0)
+    for rect, val in zip(bars_g, gamma_vals):
+        if np.isfinite(val):
+            ax_g.text(
+                rect.get_x() + rect.get_width() / 2,
+                rect.get_height() + max(rect.get_height() * 0.02, 1e-12),
+                f"{val:.2e}",
+                ha="center",
+                va="bottom",
+                fontsize=9,
+            )
+
+    legend_handles = [
+        plt.Rectangle((0, 0), 1, 1, color=PALETTE["navy"]),
+        plt.Rectangle((0, 0), 1, 1, color=PALETTE["teal"]),
+    ]
+    fig.legend(legend_handles, labels, loc="upper center", ncol=2, frameon=True, bbox_to_anchor=(0.5, 0.96))
+    fig.suptitle("Eficiența Hedgingului: Expuneri Înainte Și După Acoperire", y=0.995)
+    fig.tight_layout(rect=[0, 0, 1, 0.90])
 
     save_figure(fig, out_dir / "figure_18_eficienta_hedgingului.png", dpi=300, save_pdf=True)
 
